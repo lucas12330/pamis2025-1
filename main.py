@@ -13,15 +13,38 @@ cotes = ""
 
 # Ajout des fonction de choix de cotès
 def Gauche():
+    global cotes
+    basic.show_leds("""
+    # . . . #
+    # # . # .
+    # # # . .
+    # # . # .
+    # . . . #
+    """)
     cotes = "gauche"
 input.on_button_pressed(Button.A, Gauche)
 
 def Droite():
+    global cotes
+    basic.show_leds("""
+    # . . . #
+    . # . # #
+    . . # # #
+    . # . # #
+    # . . . #
+    """)
     cotes = "droite"
 input.on_button_pressed(Button.B, Droite)
 
 def countTime():
     global start_time, servoBool, vide, cotes
+    # allumere les LED 
+    if pins.digital_read_pin(DigitalPin.P0):
+        maqueen.write_led(maqueen.LED.LED_RIGHT, maqueen.LEDswitch.TURN_ON)
+        maqueen.write_led(maqueen.LED.LED_LEFT, maqueen.LEDswitch.TURN_ON)
+    else:
+        maqueen.write_led(maqueen.LED.LED_RIGHT, maqueen.LEDswitch.TURN_OFF)
+        maqueen.write_led(maqueen.LED.LED_LEFT, maqueen.LEDswitch.TURN_OFF)
 
     # Vérifier si le capteur P0 est activé et que le programme n'a pas encore démarré
     if start_time == -1 and pins.digital_read_pin(DigitalPin.P0) == 0:
@@ -39,11 +62,11 @@ def countTime():
                 maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CW, 255)
                 maqueen.motor_run(maqueen.Motors.M2, maqueen.Dir.CW, 200)
             # Les temps ici le jour du concour sont time<91850
-            elif time < 9850:
+            elif 9650<=time < 9850:
                 maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CCW, 100)
                 maqueen.motor_run(maqueen.Motors.M2, maqueen.Dir.CW, 100)
             #Pour cette action les temps sont time < 100000:
-            elif time < 18000 and vide:
+            elif 9850<=time < 18000 and vide:
                 maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 17)
             elif servoBool:
                 maqueen.motor_stop(maqueen.Motors.ALL)

@@ -8,14 +8,39 @@ let vide = true
 let cotes = ""
 //  Ajout des fonction de choix de cotès
 input.onButtonPressed(Button.A, function Gauche() {
-    let cotes = "gauche"
+    
+    basic.showLeds(`
+    # . . . #
+    # # . # .
+    # # # . .
+    # # . # .
+    # . . . #
+    `)
+    cotes = "gauche"
 })
 input.onButtonPressed(Button.B, function Droite() {
-    let cotes = "droite"
+    
+    basic.showLeds(`
+    # . . . #
+    . # . # #
+    . . # # #
+    . # . # #
+    # . . . #
+    `)
+    cotes = "droite"
 })
 basic.forever(function countTime() {
     let time: number;
     let i: number;
+    
+    //  allumere les LED 
+    if (pins.digitalReadPin(DigitalPin.P0)) {
+        maqueen.writeLED(maqueen.LED.LEDRight, maqueen.LEDswitch.turnOn)
+        maqueen.writeLED(maqueen.LED.LEDLeft, maqueen.LEDswitch.turnOn)
+    } else {
+        maqueen.writeLED(maqueen.LED.LEDRight, maqueen.LEDswitch.turnOff)
+        maqueen.writeLED(maqueen.LED.LEDLeft, maqueen.LEDswitch.turnOff)
+    }
     
     //  Vérifier si le capteur P0 est activé et que le programme n'a pas encore démarré
     if (start_time == -1 && pins.digitalReadPin(DigitalPin.P0) == 0) {
@@ -33,11 +58,11 @@ basic.forever(function countTime() {
             if (3000 < time && time < 9650) {
                 maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CW, 255)
                 maqueen.motorRun(maqueen.Motors.M2, maqueen.Dir.CW, 200)
-            } else if (time < 9850) {
+            } else if (9650 <= time && time < 9850) {
                 //  Les temps ici le jour du concour sont time<91850
                 maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CCW, 100)
                 maqueen.motorRun(maqueen.Motors.M2, maqueen.Dir.CW, 100)
-            } else if (time < 18000 && vide) {
+            } else if (9850 <= time && time < 18000 && vide) {
                 // Pour cette action les temps sont time < 100000:
                 maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 17)
             } else if (servoBool) {
