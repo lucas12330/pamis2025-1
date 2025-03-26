@@ -1,15 +1,12 @@
-# Programme de Lucas Bezanilla Bou
-# Adaptable selon le contexte du concour
-
-# Les direction sont sois CW sois CCW
-
 from microbit import *
 import maqueen
+
+pins.set_pull(DigitalPin.P0, PinPullMode.PULL_UP)
 
 start_time = -1  # Programme non démarré
 servoBool = True
 vide = True
-cotes = ""
+cotes = ""  # Réinitialisation obligatoire
 
 # Ajout des fonction de choix de cotès
 def Gauche():
@@ -36,9 +33,11 @@ def Droite():
     cotes = "droite"
 input.on_button_pressed(Button.B, Droite)
 
+# Affiche un "?" au début pour forcer le choix
+basic.show_string("?")
+
 def countTime():
     global start_time, servoBool, vide, cotes
-    # allumere les LED 
     if pins.digital_read_pin(DigitalPin.P0):
         maqueen.write_led(maqueen.LED.LED_RIGHT, maqueen.LEDswitch.TURN_ON)
         maqueen.write_led(maqueen.LED.LED_LEFT, maqueen.LEDswitch.TURN_ON)
@@ -46,32 +45,23 @@ def countTime():
         maqueen.write_led(maqueen.LED.LED_RIGHT, maqueen.LEDswitch.TURN_OFF)
         maqueen.write_led(maqueen.LED.LED_LEFT, maqueen.LEDswitch.TURN_OFF)
 
-    # Vérifier si le capteur P0 est activé et que le programme n'a pas encore démarré
     if start_time == -1 and pins.digital_read_pin(DigitalPin.P0) == 0:
-        start_time = control.millis()  # Démarrer le timer une seule fois
+        start_time = control.millis()
 
-    # Exécuter la logique seulement si le programme a commencé
     if start_time != -1:
-        time = control.millis() - start_time  # Temps écoulé
-        
-        # Réaliser pour le cotès gauche
-        if (cotes == "gauche"):
+        time = control.millis() - start_time
 
-            # Les temps sont a changé le jour du concour 85k<time<91650
-            if 3000<time < 9650:
+        if cotes == "gauche":
+            if 3000 < time < 9650:
                 maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CW, 255)
                 maqueen.motor_run(maqueen.Motors.M2, maqueen.Dir.CW, 200)
-            # Les temps ici le jour du concour sont time<91850
-            elif 9650<=time < 9850:
+            elif 9650 <= time < 9850:
                 maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CCW, 100)
                 maqueen.motor_run(maqueen.Motors.M2, maqueen.Dir.CW, 100)
-            #Pour cette action les temps sont time < 100000:
-            elif 9850<=time < 18000 and vide:
+            elif 9850 <= time < 18000 and vide:
                 maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 17)
             elif servoBool:
                 maqueen.motor_stop(maqueen.Motors.ALL)
-                # Peut être modifier mais avec prudence suivant les recomandation des arbitre
-                # ainsi que des juges d'homologation
                 for i in range(4):
                     maqueen.servo_run(maqueen.Servos.S1, 180)
                     basic.pause(200)
@@ -81,21 +71,16 @@ def countTime():
                 servoBool = False
             else:
                 maqueen.motor_stop(maqueen.Motors.ALL)
-        #Réaliser pour le cotès droit
-        elif (cotes == "droite"):
-            # Les temps sont a changé le jour du concour 85k<time<91650
-            if 3000<time < 9650: #Permet de faire passer cette action dans un intervalle de temps
+
+        elif cotes == "droite":
+            if 3000 < time < 9650:
                 maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CW, 255)
                 maqueen.motor_run(maqueen.Motors.M2, maqueen.Dir.CW, 200)
-            # Les temps ici le jour du concour sont time<91850
-            elif time < 9850:
-                # Pour le cotès droit ils faut simplement changé le sens 
-                # De rotation du Pami
+            elif 9650 <= time < 9850:
                 maqueen.motor_run(maqueen.Motors.M1, maqueen.Dir.CW, 100)
                 maqueen.motor_run(maqueen.Motors.M2, maqueen.Dir.CCW, 100)
-            #Pour cette action les temps sont time < 100000: 
-            elif time < 18000 and vide:
-                maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 17)
+            elif 9850 <= time < 18000 and vide:
+                maqueen.motor_run(maqueen.Motors.ALL, maqueen.Dir.CW, 23)
             elif servoBool:
                 maqueen.motor_stop(maqueen.Motors.ALL)
                 for i in range(4):
@@ -107,9 +92,10 @@ def countTime():
                 servoBool = False
             else:
                 maqueen.motor_stop(maqueen.Motors.ALL)
-basic.forever(countTime) # ne jamais remplacer par des while true car ce sont des boucle fermé
+
+basic.forever(countTime)
 
 def on_forever():
     global vide
-    vide = maqueen.ultrasonic() <= 5  # Met à jour `vide` automatiquement
-basic.forever(on_forever) # Ne jamais remplacer par des while true car se sont des boucles fermé
+    vide = maqueen.ultrasonic() <= 5
+basic.forever(on_forever)
